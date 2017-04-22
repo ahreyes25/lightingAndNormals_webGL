@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<script id="vertex-shader" type="x-shader/x-vertex">
+attribute vec4 vPosition;
+attribute vec4 vNormal;
+varying vec4 fColor;
+uniform vec4 ambientProduct, diffuseProduct, specularProduct;
+uniform mat4 worldMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 projMatrix;
+uniform vec4 lightPosition;
+uniform float shininess;
+void main()
+{
+    vec3 pos = -(viewMatrix * vPosition).xyz;
+    vec3 light = lightPosition.xyz;
+    vec3 L = normalize(light - pos);
+    vec3 E = normalize(-pos);
+    vec3 H = normalize(L + E);
+    
+    //transform vertex normal into eye coordinates 
+    vec3 N = normalize((viewMatrix * vNormal).xyz);
+
+    //compute terms in the illumination equation
+    vec4 ambient = ambientProduct;
+
+    float Kd = max(dot(L, N), 0.0);
+    vec4 diffuse = Kd * diffuseProduct;
+
+    float Ks = pow(max(dot(N, H), 0.0), shininess);
+    vec4 specular = Ks * specularProduct;
+    
+    if (dot(L, N) < 0.0)
+    {
+       specular = vec4(0.0, 0.0, 0.0, 1.0);
+    } 
+
+    gl_Position = projMatrix * viewMatrix * worldMatrix * vPosition;
+    fColor = ambient + diffuse + specular;
+    fColor.a = 1.0;
+}
+</script>
+<script id="fragment-shader" type="x-shader/x-fragment">
+precision mediump float;
+varying vec4 fColor;
+void main()
+{
+    gl_FragColor = fColor;
+}
+</script>
+<script type="text/javascript" src="./Common/webgl-utils.js"></script>
+<script type="text/javascript" src="./Common/initShaders.js"></script>
+<script type="text/javascript" src="./Common/MV.js"></script>
+<script type="text/javascript" src="hw3.js"></script>
+<script type="text/javascript" src="geometry.js"></script>
+<script type="text/javascript" src="geometry2.js"></script>
+<t>Alex H. Reyes</t>
+</p>
+<t>04/15/17</t>
+</p>
+<t>Lights, Camera, Action! This program creates two parametric shapes and applies lighting effects to the scene based off of object normal vectors.</t>
+</p>
+<t>material1 = new material(vec4(0.0, 0.0, 0.0, 1.0), vec4(0.01, 0.01, 0.01, 1.0), vec4(0.50, 0.50, 0.50, 1.0), 0.25); //black plastic
+    material2 = new material(vec4(0.0, 0.05, 0.05, 1.0), vec4(0.4, 0.5, 0.5, 1.0), vec4(0.04, 0.7, 0.7, 1.0), 0.78125); //cyan rubber
+    material3 = new material(vec4(0.05375, 0.05, 0.06625, 1.0), vec4(0.18275, 0.17, 0.22525, 1.0), vec4(0.332741, 0.328634, 0.346435, 1.0), 0.3); //obsidian
+    material4 = new material(vec4(0.19125, 0.0735, 0.0225, 1.0), vec4(0.7038, 0.27048, 0.0828, 1.0), vec4(0.256777, 0.137622, 0.086014, 1.0), 0.1); //copper
+    material5 = new material(vec4(0.24725, 0.1995, 0.0745, 1.0), vec4(0.75164, 0.60648, 0.22648, 1.0), vec4(0.628281, 0.555802, 0.366065, 1.0), 0.4); //gold
+    material6 = new material(vec4(0.0, 0.0, 0.0, 1.0), vec4(0.55, 0.55, 0.55, 1.0), vec4(0.7, 0.7, 0.7, 1.0), 0.25); //white plastic</t></p>
+<t>Resources that I used were the slides and links given on the course website.</t></p>
+<body>
+<canvas id="gl-canvas" width="512" height="512">
+Oops ... your browser doesn't support the HTML5 canvas element
+</canvas>
+</body>
+</p>
+<button id="whiteLight">Toggle White Light</button>
+<button id="surfaceRotation">Surface Rotation</button>
+<button id="lightRotation">Light Rotation</button>
+</p>
+<button id="shapeMaterial1">Cylinder Material 1</button>
+<button id="shapeMaterial2">Cylinder Material 2</button>
+<button id="shapeMaterial3">Cylinder Material 3</button>
+</p>
+<button id="cylinderMaterial1">Cone Material 1</button>
+<button id="cylinderMaterial2">Cone Material 2</button>
+<button id="cylinderMaterial3">Cone Material 3</button>
+</p>
+<button id="lowRes">Low Resolution</button>
+<button id="highRes">High Resolution</button>
+<button id="toggleNormals">Normal Vectors</button>
+</html>
